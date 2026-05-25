@@ -89,10 +89,24 @@ class UserModel {
   }
   
   
-  loginUser(userId, userPwd, callback) {
+  login(userId, userPwd, callback) {
     const selectQuery = `SELECT * FROM TBL_USER_MAIN WHERE USER_ID = ? AND USER_PWD = ?`;
-    this.db.get(selectQuery, [userId, userPwd], callback);
-    console.info('login user result :', callback)
+    this.db.get(selectQuery, [userId, userPwd], (err, row) => {
+      if (err) return callback(err, null);
+      callback(null, row || null);
+    });
+  }
+
+  loginUser(userId, userPwd, callback) {
+    this.login(userId, userPwd, callback);
+  }
+
+  register(userId, userPwd, uuid, callback) {
+    const insertQuery = `INSERT INTO TBL_USER_MAIN (USER_ID, USER_PWD, UUID) VALUES (?, ?, ?)`;
+    this.db.run(insertQuery, [userId, userPwd, uuid], function(err) {
+      if (err) return callback(err);
+      callback(null, this.lastID);
+    });
   }
 
   // 다른 CRUD 메서드들도 추가할 수 있습니다.
